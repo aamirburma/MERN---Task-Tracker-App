@@ -25,3 +25,8 @@
     <li><b>Step-2 : </b>Now, do the following command on root directory <code>npx i create-react-app "mern-task-tracker-app"</code></li>
     <li><b>Step-3 : </b>Go to "./mern-task-tracker-app" and copy file of "./mern-task-tracker-app" of git</li>
 </ol>
+
+<h1>Application Demo</h1>
+<video width="100%" height="240" autoplay controls>
+  <!-- <source src="./video/MERN Task Tracker App .mp4" type="video/mp4"> -->
+</video>

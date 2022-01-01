@@ -1,27 +1,32 @@
 import axios from 'axios'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { useHistory } from 'react-router-dom'
+import ReadOnlyRows from './readOnlyRows'
+import EditableRows from './editableRows'
 
 const Home = (props) => {
 
     const history = useHistory();
-    var i = 1;
 
     /** Fetch data */
     const [taskDetails, setTaskDetails] = useState([])
+
+    /** Edit data */
+    const [editTaskId, setEditTaskId] = useState(null)
+
     const getTask = () => {
         axios.get("http://localhost:5000/task").then(res => {
-            console.log(res.data.task);
             setTaskDetails(res.data.task)
         });
     }
     useEffect(() => getTask(), [])
 
-
     const [task, setTask] = useState({
         title: "",
         desc: ""
     })
+
+
     /** Handle Change Event */
     const changeHandle = (e) => {
         const { name, value } = e.target
@@ -29,6 +34,49 @@ const Home = (props) => {
             ...task,
             [name]: value
         })
+    }
+
+    /********************* EDIT *************************/
+    /** Use Satet to store value */
+    const [editTask, setEditTask] = useState({
+        title: "",
+        desc: ""
+    })
+
+    /** Click event on update button */
+    const handleEditClick = (event, item) => {
+        event.preventDefault();
+        setEditTaskId(item._id)
+
+        const formValues = {
+            title: item.title,
+            desc: item.desc
+        }
+        setEditTask(formValues)
+    }
+    /** Handle input filed change event */
+    const changeHandleEdit = (e) => {
+        const { name, value } = e.target
+        setEditTask({
+            ...editTask,
+            [name]: value
+        })
+    }
+
+    /** Edit task */
+    const editTaskClick = (event) => {
+        event.preventDefault();
+        const { title, desc } = editTask
+
+        if (title && desc) {
+            axios.put("http://localhost:5000/task/" + editTaskId, editTask)
+                .then(res => {
+                    alert(res.data.message);
+                    cacelButtonClick();
+                })
+        } else {
+            alert("All fields are mandatory! Please fill all input.")
+        }
     }
 
     /** Add task */
@@ -54,10 +102,33 @@ const Home = (props) => {
         props.setUser({})
     }
 
+    /********************************* DELETE DATA ********************************/
+
+    const [deleteDataID, setDeleteDataID] = useState(null)
+
+    const deleteData = (event, item) => {
+        // event.preventDefault();
+        if (item._id) {
+            axios.delete("http://localhost:5000/task/" + item._id)
+            .then((res) => {
+                alert(res.data.message);
+                cacelButtonClick();
+            })
+        } else {
+            alert("Sorry! There is problem on delete.")
+        }
+    }
+
+    /** Cancel button click */
+    const cacelButtonClick = () => {
+        setEditTaskId(null)
+        getTask()
+        history.push("/");
+    }
 
     return (
         <div className='container'>
-            {console.log(taskDetails)}
+            {/* {console.log(taskDetails)} */}
             <h1 className="display-3 text-center mt-5">Task Tracker App</h1>
             <hr />
             <button className='btn btn-block btn-warning' onClick={logout}>Logout</button>
@@ -92,42 +163,37 @@ const Home = (props) => {
                 </div>
                 <div className="col-md-7 col-sm-12 text-center">
                     <h1 className='text-center'>Task details</h1>
-                    <table className="table table-striped table-inverse table-bordered" >
-                        <thead className="thead-inverse">
-                            <tr>
-                                <th>#</th>
-                                <th>Task</th>
-                                <th>Description</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tfoot className="thead-inverse">
-                            <tr>
-                                <th>#</th>
-                                <th>Task</th>
-                                <th>Description</th>
-                                <th>Action</th>
-                            </tr>
-                        </tfoot>
-                        <tbody>
+                    {/* <form> */}
+                        <table className="table table-striped table-inverse table-bordered" >
+                            <thead className="thead-inverse">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Task</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tfoot className="thead-inverse">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Task</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
 
-                            {
-                                taskDetails.map(item => (
-                                    <tr>
-                                        <td key={item._id}>{i++}</td>
-                                        <td key={item.title}>{item.title}</td>
-                                        <td key={item.desc}>{item.desc}</td>
-                                        <td>
-                                            <button key="Delete" className='btn btn-danger'>DELETE</button>
-                                            &nbsp;
-                                            <button className='btn btn-info'>UPDATE</button>
-                                        </td>
-                                    </tr>
-                                ))
-                            }
+                                {
+                                    taskDetails.map(item => (
+                                        <Fragment>
+                                            {editTaskId === item._id ? <EditableRows cacelButtonClick={cacelButtonClick} editTask={editTask} changeHandleEdit={changeHandleEdit} editTaskClick={editTaskClick} /> : <ReadOnlyRows handleEditClick={handleEditClick} deleteData={deleteData} item={item} />}
+                                        </Fragment>
+                                    ))
+                                }
 
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    {/* </form> */}
                 </div>
             </div>
         </div>
