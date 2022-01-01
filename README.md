@@ -27,3 +27,7 @@
 </ol>
 
 <h1>Application Demo</h1>
+<video controls autoplay>
+  <source src="./video/MERN Task Tracker App .mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
