@@ -27,6 +27,3 @@
 </ol>
 
 <h1>Application Demo</h1>
-<video width="100%" height="240" autoplay controls>
-  <!-- <source src="./video/MERN Task Tracker App .mp4" type="video/mp4"> -->
-</video>
